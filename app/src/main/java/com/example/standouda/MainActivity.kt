@@ -149,11 +149,16 @@ fun generateItemList(): List<Item> {
 
 @Composable
 fun ListItem(item: Item) {
-    Text(
+    Box(
         modifier = Modifier
-            .padding(16.dp)
-            .fillMaxWidth(),
-        text = item.name,
-        style = TextStyle(fontSize = 24.sp, color = Color.White)
-    )
+            .background(Color.Black)
+    ){
+        Text(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            text = item.name,
+            style = TextStyle(fontSize = 24.sp, color = Color.White)
+        )
+    }
 }
