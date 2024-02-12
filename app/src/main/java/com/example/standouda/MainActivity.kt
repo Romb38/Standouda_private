@@ -34,14 +34,19 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.standouda.ui.theme.StandoudaTheme
+import com.example.standouda.Constants
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             StandoudaTheme {
-                DiceRollerApp()
+                navigation()
             }
         }
     }
@@ -50,19 +55,18 @@ class MainActivity : ComponentActivity() {
 // Définition de votre modèle Item
 data class Item(val name: String)
 
-@Preview
 @Composable
-fun DiceRollerApp(){
+fun Standoudapp(navController: NavController){
 
     // État de la liste des items
 
-    var itemList by remember { mutableStateOf(generateItemList()) }
+    var itemList by remember { mutableStateOf(generateItemList(20)) }
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         // Afficher la TopBar
-        TopBar()
+        TopBar(navController = navController)
         Box(
             modifier = Modifier.weight(1f)
         ) {
@@ -88,13 +92,13 @@ fun DiceRollerApp(){
 }
 
 @Composable
-fun TopBar(modifier: Modifier = Modifier){
+fun TopBar(modifier: Modifier = Modifier,navController: NavController){
 // Afficher le rectangle violet en haut de l'écran avec du texte à l'intérieur
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(100.dp)
-            .background(color = colorResource(id = R.color.purple_200).copy(alpha = 0.5f)),
+            .background(color = colorResource(id = R.color.purple_200)),
         contentAlignment = Alignment.CenterStart
     ) {
         Row(
@@ -107,18 +111,7 @@ fun TopBar(modifier: Modifier = Modifier){
                 text = stringResource(R.string.app_name),
                 style = TextStyle(fontSize = 24.sp, color = Color.White),
             )
-            IconButton(
-                modifier = Modifier.padding(16.dp),
-                onClick = { /* TODO */ }
-            )
-            {
-                Icon(
-                    modifier = Modifier.size(40.dp),
-                    painter = painterResource(id = R.drawable.more_vert), // Assurez-vous de mettre l'icône appropriée
-                    contentDescription = stringResource(R.string.more_options),
-                    tint = Color.White
-                )
-            }
+            MoreOptionButton(navController = navController)
         }
     }
 }
@@ -142,9 +135,26 @@ fun RefreshButton(modifier: Modifier = Modifier){
 
 }
 
+
+@Composable
+fun MoreOptionButton(modifier: Modifier = Modifier,navController: NavController){
+    IconButton(
+        modifier = Modifier.padding(16.dp),
+        onClick = {navController.navigate("settings")}
+    )
+    {
+        Icon(
+            modifier = Modifier.size(60.dp),
+            painter = painterResource(id = R.drawable.settings_24px), // Assurez-vous de mettre l'icône appropriée
+            contentDescription = stringResource(R.string.more_options),
+            tint = Color.White
+        )
+    }
+}
+
 // Générateur de liste d'items pour la démonstration
-fun generateItemList(): List<Item> {
-    return List(20) { index -> Item("Item_${index + 1}") }
+fun generateItemList(nb : Int): List<Item> {
+    return List(nb) { index -> Item("Item_${index + 1}") }
 }
 
 @Composable
@@ -160,5 +170,30 @@ fun ListItem(item: Item) {
             text = item.name,
             style = TextStyle(fontSize = 24.sp, color = Color.White)
         )
+    }
+    HorizontalDivider(color = Color.Gray)
+}
+
+
+
+@Preview
+@Composable
+fun navigation() {
+    val navController = rememberNavController()
+
+    // Utilisez NavHost pour gérer la navigation
+    NavHost(navController = navController, startDestination = "main") {
+        // Écran principal
+        composable("main") {
+            Standoudapp(navController)
+        }
+        // Écran des paramètres
+        composable("settings") {
+            SettingsScreen(navController=navController)
+        }
+        //About section
+        composable("about"){
+            AboutView(navController = navController)
+        }
     }
 }
