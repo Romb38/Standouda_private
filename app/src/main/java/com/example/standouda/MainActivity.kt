@@ -58,7 +58,7 @@ fun Standoudapp(navController: NavController){
 
     // État de la liste des items
 
-    val appList by remember { mutableStateOf(generateAppList(20)) }
+    val gestionApp by remember { mutableStateOf(GestionnaireApplication()) }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -66,26 +66,47 @@ fun Standoudapp(navController: NavController){
         // Afficher la TopBar
         TopBar(navController = navController)
         Box(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .fillMaxSize()
         ) {
-            // Afficher la liste d'items avec un espace en haut pour la TopBar
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(appList.size) { index ->
-                    ListItem(app = appList[index])
+
+            if (gestionApp.getNbApp() != 0) {
+                // Afficher la liste d'items avec un espace en haut pour la TopBar
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(gestionApp.getAppList().size) { index ->
+                        ListItem(app = gestionApp.getAppList()[index])
+                    }
                 }
+            } else {
+                NotAvailable()
             }
             // Bouton de rafraîchissement en bas à droite
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
             ) {
-                RefreshButton()
+                RefreshButton(gestionApp)
             }
         }
 
 
+    }
+}
+
+
+@Composable
+fun NotAvailable(){
+    Row (
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ){
+        Text(
+            modifier = Modifier.padding(top = 16.dp),
+            text = "No apps availables",
+            style = TextStyle(fontSize = 16.sp, color = Color.Gray)
+        )
     }
 }
 
@@ -116,14 +137,14 @@ fun TopBar(navController: NavController){
 
 
 @Composable
-fun RefreshButton(){
+fun RefreshButton(gestionApp : GestionnaireApplication){
     val ctx = LocalContext.current
     Button(
         modifier = Modifier
             .padding(40.dp)
             .size(80.dp),
         shape = CircleShape,
-        onClick = { toast(ctx,"Work in progress")},
+        onClick = {gestionApp.refresh(ctx)},
     ) {
         Icon(
             painter = painterResource(id = R.drawable.outline_update),
@@ -151,10 +172,6 @@ fun MoreOptionButton(navController: NavController){
     }
 }
 
-// Générateur de liste d'items pour la démonstration
-fun generateAppList(nb : Int): List<MyApplication> {
-    return List(nb) { index -> MyApplication("Item_${index + 1}") }
-}
 
 @Composable
 fun ListItem(app: MyApplication) {

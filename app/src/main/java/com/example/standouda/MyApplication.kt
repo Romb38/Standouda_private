@@ -24,7 +24,7 @@ class MyApplication(
     val icon: String = "", // Valeur par défaut pour l'icône
     val dlLink: String = "",
     val infoLink: String = "https://www.rainbowswingers.net/",
-    private val state: ApplicationState = ApplicationState.INSTALLED
+    private val state: ApplicationState = ApplicationState.UNINSTALLED
 ) {
     @Composable
     fun AfficheAppIcon() {

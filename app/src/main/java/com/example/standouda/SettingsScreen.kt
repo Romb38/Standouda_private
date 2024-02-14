@@ -32,11 +32,11 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 
 
-data class Item(val name: String)
+data class MenuItem(val name: String)
 
 
 @Composable
-fun SettingsListItem(item: Item,navController: NavController) {
+fun SettingsListItem(item: MenuItem,navController: NavController) {
     //On récupère le contexte local en dehors de la fonction onClick
     //(considérée comme fonction du noyau fonctionnelle)
     //[HOTOW] Afficher un toast
@@ -82,9 +82,9 @@ fun SettingsListItem(item: Item,navController: NavController) {
     }
 }
 
-fun settingsGenerateList(): List<Item> {
+fun settingsGenerateList(): List<MenuItem> {
     //Génération de la liste de façon automatique
-    return List(Constants.SETTINGS_MENU.size) { index -> Item(Constants.SETTINGS_MENU[index]) }
+    return List(Constants.SETTINGS_MENU.size) { index -> MenuItem(Constants.SETTINGS_MENU[index]) }
 }
 
 @Composable
