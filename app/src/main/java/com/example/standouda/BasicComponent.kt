@@ -1,5 +1,6 @@
 package com.example.standouda
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,16 +12,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -43,7 +44,7 @@ fun HorizontalDivider(modifier: Modifier = Modifier, thickness: Dp = 2.dp, color
 }
 
 @Composable
-fun Bar(name : String, toGo : String, modifier: Modifier = Modifier,navController: NavController){
+fun Bar(name : String, toGo : String,navController: NavController){
 // Afficher le rectangle violet en haut de l'écran avec du texte à l'intérieur
     Box(
         modifier = Modifier
@@ -81,14 +82,14 @@ fun Bar(name : String, toGo : String, modifier: Modifier = Modifier,navControlle
 
 
 @Composable
-fun showErrorDialog(message: String,onDismiss: () -> Unit = {}) {
+fun ShowErrorDialog(message: String,onDismiss: () -> Unit = {}) {
 
-    var dialogOpen = remember { mutableStateOf(0) }
+    val dialogOpen = remember { mutableIntStateOf(1) }
 
-    if (dialogOpen.value == 1) {
-        Dialog(onDismissRequest = { dialogOpen.value = 0 }) {
+    if (dialogOpen.intValue == 1) {
+        Dialog(onDismissRequest = { dialogOpen.intValue = 0 }) {
             AlertDialog(
-                onDismissRequest = { dialogOpen.value = 0 },
+                onDismissRequest = { dialogOpen.intValue = 0 },
                 title = { Text(text = "Erreur") },
                 text = {
                     Column {
@@ -101,7 +102,7 @@ fun showErrorDialog(message: String,onDismiss: () -> Unit = {}) {
                 confirmButton = {
                     Button(
                         onClick = {
-                            dialogOpen.value = 0
+                            dialogOpen.intValue = 0
                             onDismiss()
                                   },
                     ) {
@@ -111,4 +112,13 @@ fun showErrorDialog(message: String,onDismiss: () -> Unit = {}) {
             )
         }
     }
+}
+
+@Composable
+fun Toast(message: String){
+    toast(LocalContext.current,message)
+}
+
+fun toast(ctx: Context, message: String){
+    android.widget.Toast.makeText(ctx, message,android.widget.Toast.LENGTH_LONG).show()
 }

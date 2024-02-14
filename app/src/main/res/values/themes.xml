@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<!-- Définir la couleur de fond de votre thème -->
-<color name="background_color">#000000</color>
+    <!-- Définir la couleur de fond de votre thème -->
+    <color name="background_color">#000000</color>
 
-<!-- Votre thème -->
-<style name="Theme.Standouda" parent="android:Theme.Material.Light.NoActionBar">
-    <!-- Autres attributs de votre thème -->
-    <item name="android:windowBackground">@color/background_color</item>
-</style>
+    <!-- Votre thème -->
+    <style name="Theme.Standouda" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Autres attributs de votre thème -->
+        <item name="android:windowBackground">@color/background_color</item>
+    </style>
 </resources>

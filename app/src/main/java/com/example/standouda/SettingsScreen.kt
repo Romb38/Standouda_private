@@ -8,13 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,27 +21,38 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 
 
-
+data class Item(val name: String)
 
 
 @Composable
 fun SettingsListItem(item: Item,navController: NavController) {
+    //On récupère le contexte local en dehors de la fonction onClick
+    //(considérée comme fonction du noyau fonctionnelle)
+    //[HOTOW] Afficher un toast
+    val ctx = LocalContext.current
     Button(
         onClick =
         {
-            val errorMessage = "Message d'erreur"
-        },//navController.navigate(item.name.lowercase()) },
+         try {
+             //On teste si la route existe, sinon on affiche une erreur
+             //L'erreur est possible car on crée les menus de façon automatiques
+             navController.navigate(item.name.lowercase())
+         } catch (e : Exception){
+             //[HOWTO] Afficher un toast d'erreur
+             toast(ctx,message = "Erreur - Menu inexistant")
+         }
+        },
         modifier = Modifier
             .fillMaxWidth()
             .height(80.dp),
@@ -75,6 +83,7 @@ fun SettingsListItem(item: Item,navController: NavController) {
 }
 
 fun settingsGenerateList(): List<Item> {
+    //Génération de la liste de façon automatique
     return List(Constants.SETTINGS_MENU.size) { index -> Item(Constants.SETTINGS_MENU[index]) }
 }
 
@@ -108,6 +117,7 @@ fun SettingsScreen(navController : NavController) {
 @Preview
 @Composable
 fun Preview(){
+    // Fonction factice, permet la génération de la preview dans Android Studio
     val navControllerFactice = rememberNavController()
 
     SettingsScreen(navController = navControllerFactice)

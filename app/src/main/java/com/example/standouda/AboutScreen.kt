@@ -14,14 +14,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -35,12 +32,15 @@ import androidx.navigation.compose.rememberNavController
 
 
 @Composable
-fun AboutView(navController: NavController) {
-    var showDialog by remember { mutableStateOf(true) }
-    Column() {
-        val appName = R.string.app_name
+fun AboutView(navController: NavController,name : String) {
+    Column {
 
-        Bar(name = Constants.SETTINGS_MENU[0], toGo = "settings", navController = navController)
+        //[HOWTO] Afficher un message d'erreur sous format box
+        //var state = ErrorDialogState.rememberState(message = "Work in progress")
+        //ErrorDialog(state = state)
+
+
+        Bar(name = name, toGo = "settings", navController = navController)
 
         Column(modifier = Modifier.fillMaxSize()) {
             Box(
@@ -63,13 +63,18 @@ fun AboutView(navController: NavController) {
 
             AppInformation()
 
-            Row() {
+            Row {
                 Box(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
+                    val handler = LocalUriHandler.current
                     IconButton(
-                        onClick = {},
+                        onClick = {
+                            //[HOTOW] Afficher un message d'erreur sous forme de box
+                            //state.show()
+                                  openURL(Constants.GITHUB_PROFIL_LINK,handler)
+                                  },
                         modifier = Modifier.padding(16.dp)
                     ) {
                         Icon(
@@ -80,6 +85,7 @@ fun AboutView(navController: NavController) {
                         )
                     }
                 }
+
             }
 
             // Ajouter d'autres informations si nécessaire
@@ -94,9 +100,6 @@ fun AppInformation() {
     val pseudo = stringResource(id = R.string.pseudo)
     val version = stringResource(id = R.string.version)
 
-    // Style de texte pour les titres
-    val titleTextStyle = TextStyle(color = Color.White, fontWeight = FontWeight.Normal)
-
     // Style de texte pour les contenus
     val contentTextStyle = TextStyle(color = Color.White, fontWeight = FontWeight.Normal)
     Box(
@@ -109,7 +112,7 @@ fun AppInformation() {
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
-                text = "$version",
+                text = version,
                 style = contentTextStyle.copy(fontSize = 16.sp)
             )
             Spacer(modifier = Modifier.height(10.dp))
@@ -129,5 +132,5 @@ fun AppInformation() {
 @Composable
 fun PreviewAboutView() {
     val navControllerFactice = rememberNavController()
-    AboutView(navControllerFactice)
+    AboutView(navControllerFactice,name = "about")
 }

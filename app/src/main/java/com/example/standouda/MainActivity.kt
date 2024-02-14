@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,10 +24,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -39,28 +41,24 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.standouda.ui.theme.StandoudaTheme
-import com.example.standouda.Constants
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             StandoudaTheme {
-                navigation()
+                Navigation()
             }
         }
     }
 }
-
-// Définition de votre modèle Item
-data class Item(val name: String)
 
 @Composable
 fun Standoudapp(navController: NavController){
 
     // État de la liste des items
 
-    var itemList by remember { mutableStateOf(generateItemList(20)) }
+    val appList by remember { mutableStateOf(generateAppList(20)) }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -74,8 +72,8 @@ fun Standoudapp(navController: NavController){
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(itemList.size) { index ->
-                    ListItem(item = itemList[index])
+                items(appList.size) { index ->
+                    ListItem(app = appList[index])
                 }
             }
             // Bouton de rafraîchissement en bas à droite
@@ -92,7 +90,7 @@ fun Standoudapp(navController: NavController){
 }
 
 @Composable
-fun TopBar(modifier: Modifier = Modifier,navController: NavController){
+fun TopBar(navController: NavController){
 // Afficher le rectangle violet en haut de l'écran avec du texte à l'intérieur
     Box(
         modifier = Modifier
@@ -118,13 +116,14 @@ fun TopBar(modifier: Modifier = Modifier,navController: NavController){
 
 
 @Composable
-fun RefreshButton(modifier: Modifier = Modifier){
+fun RefreshButton(){
+    val ctx = LocalContext.current
     Button(
         modifier = Modifier
             .padding(40.dp)
             .size(80.dp),
         shape = CircleShape,
-        onClick = {/*TODO*/ },
+        onClick = { toast(ctx,"Work in progress")},
     ) {
         Icon(
             painter = painterResource(id = R.drawable.outline_update),
@@ -137,7 +136,7 @@ fun RefreshButton(modifier: Modifier = Modifier){
 
 
 @Composable
-fun MoreOptionButton(modifier: Modifier = Modifier,navController: NavController){
+fun MoreOptionButton(navController: NavController){
     IconButton(
         modifier = Modifier.padding(16.dp),
         onClick = {navController.navigate("settings")}
@@ -153,23 +152,53 @@ fun MoreOptionButton(modifier: Modifier = Modifier,navController: NavController)
 }
 
 // Générateur de liste d'items pour la démonstration
-fun generateItemList(nb : Int): List<Item> {
-    return List(nb) { index -> Item("Item_${index + 1}") }
+fun generateAppList(nb : Int): List<MyApplication> {
+    return List(nb) { index -> MyApplication("Item_${index + 1}") }
 }
 
 @Composable
-fun ListItem(item: Item) {
+fun ListItem(app: MyApplication) {
     Box(
         modifier = Modifier
             .background(Color.Black)
     ){
-        Text(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            text = item.name,
-            style = TextStyle(fontSize = 24.sp, color = Color.White)
-        )
+        Row (
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ){
+            app.AfficheAppIcon()
+
+            Column {
+                Text(
+                    modifier = Modifier,
+                    text = app.name,
+                    style = TextStyle(fontSize = 24.sp, color = Color.White)
+                )
+                Text(
+                    text = "by "+app.author,
+                    style = TextStyle(fontSize = 16.sp, color = Color.Gray)
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            app.AffAppInteractButton()
+
+            val handler = LocalUriHandler.current
+
+            IconButton(
+                onClick = { openURL(app.infoLink,handler) },
+                modifier = Modifier.padding(end = 10.dp)
+            ) {
+                Icon(
+                    modifier = Modifier
+                        .size(40.dp),
+                    painter = painterResource(id = R.drawable.info_24px),
+                    contentDescription = "Information",
+                    tint = Color.White
+                )
+            }
+        }
     }
     HorizontalDivider(color = Color.Gray)
 }
@@ -178,7 +207,7 @@ fun ListItem(item: Item) {
 
 @Preview
 @Composable
-fun navigation() {
+fun Navigation() {
     val navController = rememberNavController()
 
     // Utilisez NavHost pour gérer la navigation
@@ -193,7 +222,7 @@ fun navigation() {
         }
         //About section
         composable("about"){
-            AboutView(navController = navController)
+            AboutView(navController = navController,name="About")
         }
     }
 }
