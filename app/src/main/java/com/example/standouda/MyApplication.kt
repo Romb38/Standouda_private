@@ -1,5 +1,7 @@
 package com.example.standouda
 
+import android.content.Context
+import android.content.pm.PackageManager
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -11,6 +13,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.room.Entity
+import androidx.room.Ignore
+import androidx.room.PrimaryKey
 
 enum class ApplicationState {
     UNINSTALLED,
@@ -18,14 +23,20 @@ enum class ApplicationState {
     UPDATABLE,
     INSTALLED
 }
+
+@Entity(tableName = "AppList")
 class MyApplication(
-    val name: String = "Untitled",
-    val author: String = "Unknown",
-    val icon: String = "", // Valeur par défaut pour l'icône
-    val dlLink: String = "",
-    val infoLink: String = "https://www.rainbowswingers.net/",
-    private val state: ApplicationState = ApplicationState.UNINSTALLED
+    @PrimaryKey val id : Int,
+    var name: String = "Untitled",
+    var packageName : String = "com.example."+name,
+    var author: String = "Unknown",
+    var version: String = "",
+    var icon: String = "", // Valeur par défaut pour l'icône
+    var dlLink: String = "",
+    var infoLink: String = "https://www.rainbowswingers.net/",
 ) {
+    @Ignore var state: ApplicationState = ApplicationState.UNINSTALLED
+
     @Composable
     fun AfficheAppIcon() {
         Image(
@@ -55,7 +66,7 @@ class MyApplication(
     @Composable
     fun DownloadInteraction(){
         IconButton(
-            onClick = { /*TODO*/ },
+            onClick = { /*[TODO] Lancer le téléchargement de l'application et l'installation*/ },
         ) {
             Icon(
                 modifier = Modifier.size(40.dp),
@@ -69,7 +80,7 @@ class MyApplication(
     @Composable
     fun UpdateInteraction(){
         IconButton(
-            onClick = { /*TODO*/ },
+            onClick = { /*[TODO] Lancer la mise à jour de l'application*/ },
         ) {
             Icon(
                 modifier = Modifier.size(40.dp),
@@ -93,5 +104,20 @@ class MyApplication(
                 tint = Color.White
             )
         }
+    }
+
+    fun isInstalled(context: Context) : Boolean {
+        //On vérifie si une application est installée ou non
+        return try {
+            val packageManager = context.packageManager
+            packageManager.getPackageInfo(this.packageName, 0)
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
+        }
+    }
+
+    override fun toString(): String {
+        return this.name
     }
 }

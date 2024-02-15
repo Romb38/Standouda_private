@@ -8,5 +8,7 @@ object Constants {
 
     const val GITHUB_PROFIL_LINK = "https://github.com/Romb38"
 
-    val GITHUB_APP_LINK = List<String>(0){ index -> "" }
+    //[TODO] Créer un github qui contiendra la liste des Githubs de mes applications
+    //Prendre le github de Standouda public et rajouter le fichier
+    val GITHUB_APP_LINK = ""
 }

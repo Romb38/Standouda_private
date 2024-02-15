@@ -58,7 +58,8 @@ fun Standoudapp(navController: NavController){
 
     // État de la liste des items
 
-    val gestionApp by remember { mutableStateOf(GestionnaireApplication()) }
+    val ctx = LocalContext.current
+    val gestionApp by remember { mutableStateOf(GestionnaireApplication(ctx = ctx)) }
 
     Column(
         modifier = Modifier.fillMaxSize()

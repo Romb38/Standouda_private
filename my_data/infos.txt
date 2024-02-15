@@ -1,4 +1,5 @@
 1: StandoudApp
 2: Romb38
+4: 1.1.0
 3: 
 4: https://github.com/Romb38/Standouda_private
