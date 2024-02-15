@@ -21,4 +21,7 @@ interface AppDAO {
 
     @Query("SELECT COUNT(*) FROM AppList WHERE name = :name")
     fun exists(name : String) : Int
+
+    @Query("DELETE FROM AppList")
+    fun deleteAll()
 }

@@ -26,7 +26,6 @@ enum class ApplicationState {
 
 @Entity(tableName = "AppList")
 class MyApplication(
-    @PrimaryKey val id : Int,
     var name: String = "Untitled",
     var packageName : String = "com.example."+name,
     var author: String = "Unknown",
@@ -35,6 +34,7 @@ class MyApplication(
     var dlLink: String = "",
     var infoLink: String = "https://www.rainbowswingers.net/",
 ) {
+    @PrimaryKey(autoGenerate = true) var id : Int = 0
     @Ignore var state: ApplicationState = ApplicationState.UNINSTALLED
 
     @Composable

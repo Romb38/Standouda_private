@@ -10,7 +10,7 @@ abstract class AppDataBase : RoomDatabase() {
     companion object {
         const val VERSION = 1
         fun getDatabase(ctx : Context): AppDataBase{
-            return Room.databaseBuilder(ctx,AppDataBase::class.java,"AppListDatabase").build()
+            return Room.databaseBuilder(ctx,AppDataBase::class.java,"AppListDatabase").allowMainThreadQueries().build()
         }
     }
 
