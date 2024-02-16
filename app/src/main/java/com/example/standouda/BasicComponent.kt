@@ -120,5 +120,6 @@ fun Toast(message: String){
 }
 
 fun toast(ctx: Context, message: String){
+    //[TODO] Retirer l'icone de l'application qui apparait dans le toast
     android.widget.Toast.makeText(ctx, message,android.widget.Toast.LENGTH_LONG).show()
 }

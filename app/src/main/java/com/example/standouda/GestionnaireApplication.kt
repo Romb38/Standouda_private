@@ -1,6 +1,7 @@
 package com.example.standouda
 
 import android.content.Context
+import android.util.Log
 
 class GestionnaireApplication(
     private var nbApp : Int = 1,
@@ -8,9 +9,20 @@ class GestionnaireApplication(
     private val appDAO: AppDAO = AppDataBase.getDatabase(ctx).AppDAO()
 ) {
 
-    private var appURLS : List<String> = getAppURLList()
+
+    private var appURLS : List<String> = safeGetAppUrlList()
     private var appList : List<MyApplication> = this.generateAppInfosList()
 
+    private fun safeGetAppUrlList() : List<String> {
+        val net = isNetworkAvailable(ctx)
+
+        return if (net) {
+            getAppURLList()
+        } else {
+            toast(ctx,"Check internet connexion")
+            listOf()
+        }
+    }
     companion object{
         fun parsingInfo(txt : String) : List<String>{
             // Récupère les informations importantes dans une chaine de caractère d'informations
@@ -39,8 +51,16 @@ class GestionnaireApplication(
     }
 
     private fun generateAppInfosList(): List<MyApplication> {
+
         //Liste de sortie
         var list : List<MyApplication> = listOf()
+        val net = isNetworkAvailable(ctx)
+
+        //Si il y a des URLS dans la liste mais qu'il n'y a pas de connexion internet
+        if(!net && list != emptyList<MyApplication>()){
+            toast(ctx,"Check Internet connexion")
+            return listOf()
+        }
 
         for (item in this.appURLS){
 
@@ -102,9 +122,18 @@ class GestionnaireApplication(
     }
 
     fun refresh(ctx : Context){
-        this.appURLS = getAppURLList()
-        this.appList = this.generateAppInfosList()
-        toast(ctx,"Work in progress")
+        //Rafraichis la liste d'application sur la page centrale
+        val net = isNetworkAvailable(ctx)
+
+        if(net) { //Si on a de la connexion
+            this.appURLS = getAppURLList()
+            this.appList = this.generateAppInfosList()
+            Log.d("OnRefresh", this.appList.toString())
+            Log.d("OnRefresh", this.appURLS.toString())
+            toast(ctx, "Refreshed")
+        } else {
+            toast(ctx,"Check internet connexion")
+        }
     }
 
 

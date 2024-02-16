@@ -145,7 +145,10 @@ fun RefreshButton(gestionApp : GestionnaireApplication){
             .padding(40.dp)
             .size(80.dp),
         shape = CircleShape,
-        onClick = {gestionApp.refresh(ctx)},
+        onClick = {
+                gestionApp.refresh(ctx)
+
+                  },
     ) {
         Icon(
             painter = painterResource(id = R.drawable.outline_update),
