@@ -19,8 +19,8 @@ interface AppDAO {
     @Delete
     fun removeApp(app : MyApplication)
 
-    @Query("SELECT COUNT(*) FROM AppList WHERE name = :name")
-    fun exists(name : String) : Int
+    @Query("SELECT COUNT(*) FROM AppList WHERE packageName = :packageName")
+    fun exists(packageName : String) : Int
 
     @Query("DELETE FROM AppList")
     fun deleteAll()

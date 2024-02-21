@@ -1,5 +1,6 @@
 package com.example.standouda
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,20 +9,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -39,18 +42,18 @@ data class MenuItem(val name: String)
 fun SettingsListItem(item: MenuItem,navController: NavController) {
     //On récupère le contexte local en dehors de la fonction onClick
     //(considérée comme fonction du noyau fonctionnelle)
-    //[HOTOW] Afficher un toast
-    val ctx = LocalContext.current
+
+    val icon: Int = Constants.SETTINGS_MENU_ICON[item.name]
+        ?: Constants.SETTINGS_MENU_ICON["default"] ?: throw IllegalStateException("No default icon found")
+
     Button(
-        onClick =
-        {
+        onClick = {
          try {
              //On teste si la route existe, sinon on affiche une erreur
              //L'erreur est possible car on crée les menus de façon automatiques
              navController.navigate(item.name.lowercase())
          } catch (e : Exception){
-             //[HOWTO] Afficher un toast d'erreur
-             toast(ctx,message = "Erreur - Menu inexistant")
+            Log.d("error", "This menu does not exists")
          }
         },
         modifier = Modifier
@@ -66,9 +69,12 @@ fun SettingsListItem(item: MenuItem,navController: NavController) {
         ) {
             // Icone centrée à gauche
             Icon(
-                painter = painterResource(id = R.drawable.icon_default),
+                painter = painterResource(id = icon),
                 contentDescription = "Icon",
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .size(40.dp),
+                tint = Color.White
             )
 
             // Titre à droite
@@ -89,6 +95,9 @@ fun settingsGenerateList(): List<MenuItem> {
 
 @Composable
 fun SettingsScreen(navController : NavController) {
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
     Column {
         val settingList by remember { mutableStateOf(settingsGenerateList()) }
 
@@ -110,6 +119,7 @@ fun SettingsScreen(navController : NavController) {
                     }
                 }
             }
+
         }
     }
 }

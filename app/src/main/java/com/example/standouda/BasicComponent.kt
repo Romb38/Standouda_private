@@ -14,6 +14,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
@@ -25,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,48 +80,4 @@ fun Bar(name : String, toGo : String,navController: NavController){
         }
     }
     HorizontalDivider()
-}
-
-
-@Composable
-fun ShowErrorDialog(message: String,onDismiss: () -> Unit = {}) {
-
-    val dialogOpen = remember { mutableIntStateOf(1) }
-
-    if (dialogOpen.intValue == 1) {
-        Dialog(onDismissRequest = { dialogOpen.intValue = 0 }) {
-            AlertDialog(
-                onDismissRequest = { dialogOpen.intValue = 0 },
-                title = { Text(text = "Erreur") },
-                text = {
-                    Column {
-                        Text(
-                            text = message,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                    }
-                },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            dialogOpen.intValue = 0
-                            onDismiss()
-                                  },
-                    ) {
-                        Text("OK")
-                    }
-                }
-            )
-        }
-    }
-}
-
-@Composable
-fun Toast(message: String){
-    toast(LocalContext.current,message)
-}
-
-fun toast(ctx: Context, message: String){
-    //[TODO] Retirer l'icone de l'application qui apparait dans le toast
-    android.widget.Toast.makeText(ctx, message,android.widget.Toast.LENGTH_LONG).show()
 }

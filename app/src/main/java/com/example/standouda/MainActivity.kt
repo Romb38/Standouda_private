@@ -1,8 +1,15 @@
 package com.example.standouda
 
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,11 +26,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,27 +54,63 @@ import androidx.navigation.compose.rememberNavController
 import com.example.standouda.ui.theme.StandoudaTheme
 
 class MainActivity : ComponentActivity() {
+
+    private val unknownSourcesPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (packageManager.canRequestPackageInstalls()) {
+                    Log.d("AppManager","Autorisation d'installer des application inconnues")
+                } else {
+                    // L'utilisateur n'a pas accordé la permission pour installer des applications de sources inconnues.
+                    // Vous pouvez gérer cela en conséquence.
+                    Log.e("AppManager","Interdiction d'installer des application inconnues")
+                }
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!packageManager.canRequestPackageInstalls()) {
+                requestUnknownSourcesPermission()
+            } else {
+                Log.d("AppManager","Autorisation d'installer des application inconnues")
+            }
+        }
+
         setContent {
             StandoudaTheme {
                 Navigation()
             }
         }
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun requestUnknownSourcesPermission() {
+        val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
+            .setData(Uri.parse("package:$packageName"))
+        unknownSourcesPermissionLauncher.launch(intent)
+    }
+
 }
 
 @Composable
 fun Standoudapp(navController: NavController){
 
-    // État de la liste des items
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val ctx = LocalContext.current
-    val gestionApp by remember { mutableStateOf(GestionnaireApplication(ctx = ctx)) }
+    val gestionApp by remember { mutableStateOf(GestionnaireApplication(ctx = ctx, snackbarHostState = snackbarHostState, scope = scope))}
+    var appList by remember {
+        mutableStateOf(gestionApp.getAppList())
+    }
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
+
         // Afficher la TopBar
         TopBar(navController = navController)
         Box(
@@ -76,8 +123,8 @@ fun Standoudapp(navController: NavController){
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(gestionApp.getAppList().size) { index ->
-                        ListItem(app = gestionApp.getAppList()[index])
+                    items(appList.size) { index ->
+                        ListItem(app = appList[index],snackbarHostState)
                     }
                 }
             } else {
@@ -88,8 +135,27 @@ fun Standoudapp(navController: NavController){
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
             ) {
-                RefreshButton(gestionApp)
+                Button(
+                    modifier = Modifier
+                        .padding(40.dp)
+                        .size(80.dp),
+                    shape = CircleShape,
+                    onClick = {
+                        gestionApp.refresh(ctx)
+                        appList = gestionApp.getAppList()
+                    },
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.outline_update),
+                        contentDescription = "Settings Icon",
+                        modifier = Modifier.size(140.dp)
+                    )
+                }
             }
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
         }
 
 
@@ -137,27 +203,6 @@ fun TopBar(navController: NavController){
 }
 
 
-@Composable
-fun RefreshButton(gestionApp : GestionnaireApplication){
-    val ctx = LocalContext.current
-    Button(
-        modifier = Modifier
-            .padding(40.dp)
-            .size(80.dp),
-        shape = CircleShape,
-        onClick = {
-                gestionApp.refresh(ctx)
-
-                  },
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.outline_update),
-            contentDescription = "Settings Icon",
-            modifier = Modifier.size(140.dp)
-        )
-    }
-
-}
 
 
 @Composable
@@ -178,7 +223,7 @@ fun MoreOptionButton(navController: NavController){
 
 
 @Composable
-fun ListItem(app: MyApplication) {
+fun ListItem(app: MyApplication,snackbarHostState : SnackbarHostState) {
     Box(
         modifier = Modifier
             .background(Color.Black)
@@ -203,7 +248,7 @@ fun ListItem(app: MyApplication) {
 
             Spacer(modifier = Modifier.weight(1f))
 
-            app.AffAppInteractButton()
+            app.AffAppInteractButton(snackbarHostState)
 
             val handler = LocalUriHandler.current
 

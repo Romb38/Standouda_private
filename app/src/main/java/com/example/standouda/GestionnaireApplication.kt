@@ -1,17 +1,43 @@
 package com.example.standouda
 
+import android.app.DownloadManager
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.util.Log
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.core.content.ContextCompat.RECEIVER_EXPORTED
+import androidx.core.content.ContextCompat.registerReceiver
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 class GestionnaireApplication(
     private var nbApp : Int = 1,
     private val ctx : Context,
-    private val appDAO: AppDAO = AppDataBase.getDatabase(ctx).AppDAO()
+    private val appDAO: AppDAO = AppDataBase.getDatabase(ctx).AppDAO(),
+    private val snackbarHostState: SnackbarHostState,
+    private val scope : CoroutineScope,
 ) {
 
 
     private var appURLS : List<String> = safeGetAppUrlList()
     private var appList : List<MyApplication> = this.generateAppInfosList()
+    private val downloadReceiver = MyBroadcastReceiver(snackbarHostState,ctx)
+
+    private val errorMessage = "Check internet connexion"
+
+    init {
+        setUpBroadCastReceiver()
+    }
+
+    private fun setUpBroadCastReceiver(){
+        // Enregistrez le BroadcastReceiver pour les actions appropriées
+        val filter = IntentFilter().apply {
+            addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+        }
+        registerReceiver(ctx,downloadReceiver, filter,RECEIVER_EXPORTED)
+    }
 
     private fun safeGetAppUrlList() : List<String> {
         val net = isNetworkAvailable(ctx)
@@ -19,12 +45,15 @@ class GestionnaireApplication(
         return if (net) {
             getAppURLList()
         } else {
-            toast(ctx,"Check internet connexion")
+            scope.launch {
+                snackbarHostState.showSnackbar(errorMessage)
+            }
             listOf()
         }
     }
     companion object{
         fun parsingInfo(txt : String) : List<String>{
+            //[TODO] Rendre le parsing moins "fort"
             // Récupère les informations importantes dans une chaine de caractère d'informations
             val lines = txt.split("\n")
             val parsedList = mutableListOf<String>()
@@ -33,6 +62,7 @@ class GestionnaireApplication(
                 val parts = line.split(": ") // On retire ce qui est devant les :
                 if (parts.size > 1) { //Si il y a du contenu on le met dans la liste
                     val parsedLine = parts[1].trim()
+                    Log.d("parsing",parsedLine)
                     parsedList.add(parsedLine)
                 } else {
                     //Sinon on rentre simplement vide
@@ -58,7 +88,9 @@ class GestionnaireApplication(
 
         //Si il y a des URLS dans la liste mais qu'il n'y a pas de connexion internet
         if(!net && list != emptyList<MyApplication>()){
-            toast(ctx,"Check Internet connexion")
+            scope.launch {
+                snackbarHostState.showSnackbar(errorMessage)
+            }
             return listOf()
         }
 
@@ -72,12 +104,13 @@ class GestionnaireApplication(
                 packageName = parsedInfos[1],
                 author = parsedInfos[2],
                 version = parsedInfos[3],
-                dlLink = parsedInfos[4],
-                infoLink = parsedInfos[5]
+                icon = parsedInfos[4],
+                dlLink = parsedInfos[5],
+                infoLink = parsedInfos[6]
             ) //On crée une application à partir de ces informations
 
 
-            val existence = this.appDAO.exists(app.name) //1
+            val existence = this.appDAO.exists(app.packageName) //1
 
             //On vérifie si l'application est installée
             val isInstalled = app.isInstalled(ctx)
@@ -130,9 +163,14 @@ class GestionnaireApplication(
             this.appList = this.generateAppInfosList()
             Log.d("OnRefresh", this.appList.toString())
             Log.d("OnRefresh", this.appURLS.toString())
-            toast(ctx, "Refreshed")
+
+            scope.launch {
+                snackbarHostState.showSnackbar("Refreshed")
+            }
         } else {
-            toast(ctx,"Check internet connexion")
+            scope.launch {
+                snackbarHostState.showSnackbar(errorMessage)
+            }
         }
     }
 
