@@ -49,7 +49,6 @@ class MyApplication(
     @Ignore var state: ApplicationState = ApplicationState.UNINSTALLED
 
 
-
     @Composable
     fun AfficheAppIcon() {
         if(this.icon == "") {
@@ -74,11 +73,10 @@ class MyApplication(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     @Composable
     fun AffAppInteractButton(snackbarHostState : SnackbarHostState) {
         if (this.state == ApplicationState.UPDATABLE){
-            UpdateInteraction()
+            UpdateInteraction(snackbarHostState)
             return
         }
 
@@ -89,14 +87,13 @@ class MyApplication(
 
         DownloadInteraction(snackbarHostState)
     }
-
-    @RequiresApi(Build.VERSION_CODES.O)
     @Composable
     fun DownloadInteraction(snackbarHostState : SnackbarHostState){
         val ctx = LocalContext.current
         val scope = rememberCoroutineScope()
         IconButton(
             onClick = {
+                Log.d("appCheck",this.version)
                 if (!isNetworkAvailable(ctx)){
                     scope.launch {
                         snackbarHostState.showSnackbar("Check internet connexion")
@@ -107,6 +104,10 @@ class MyApplication(
                     }
                     //[TODO] Changer l'icone pour un chargement
                     downloadFile(ctx,"https://github.com/Romb38/StandoudApp/raw/main/test_apk.apk","test_apk.apk")
+
+                    //[TODO] Mettre à jour la BDD correctement
+                    //[TODO] Une fois que l'application est installé, mettre la bonne version dans la base de donnée
+                    Constants.APP_INSTALLED = this
                 }
                       },
         ) {
@@ -120,9 +121,31 @@ class MyApplication(
     }
 
     @Composable
-    fun UpdateInteraction(){
+    fun UpdateInteraction(snackbarHostState : SnackbarHostState){
+        val ctx = LocalContext.current
+        val scope = rememberCoroutineScope()
         IconButton(
-            onClick = { /*[TODO] Lancer la mise à jour de l'application*/ },
+            onClick = {
+                Log.d("appCheck",this.version)
+                if (!isNetworkAvailable(ctx)){
+                    scope.launch {
+                        snackbarHostState.showSnackbar("Check internet connexion")
+                    }
+                } else {
+                    scope.launch {
+                        snackbarHostState.showSnackbar("Downloading...")
+                    }
+                    //[TODO] Changer l'icone pour un chargement
+                    downloadFile(ctx,"https://github.com/Romb38/StandoudApp/raw/main/test_apk.apk","test_apk.apk")
+
+                    //[TODO] Vérifier que la mise a jour s'est déroulée correctement
+                    Constants.APP_INSTALLED = this
+                    AppDataBase.getDatabase(ctx).AppDAO().removeAppByPackageName(this.packageName)
+
+                }
+
+
+                      },
         ) {
             Icon(
                 modifier = Modifier.size(40.dp),
@@ -168,5 +191,10 @@ class MyApplication(
 
     override fun toString(): String {
         return this.name
+    }
+
+
+    fun isEmpty() : Boolean{
+        return this.packageName == ""
     }
 }

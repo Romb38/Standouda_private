@@ -2,15 +2,14 @@ package com.example.standouda
 
 import android.app.DownloadManager
 import android.content.Context
-import android.content.Intent
 import android.content.IntentFilter
 import android.util.Log
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.core.content.ContextCompat.RECEIVER_EXPORTED
 import androidx.core.content.ContextCompat.registerReceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+
 
 class GestionnaireApplication(
     private var nbApp : Int = 1,
@@ -30,6 +29,7 @@ class GestionnaireApplication(
     init {
         setUpBroadCastReceiver()
     }
+
 
     private fun setUpBroadCastReceiver(){
         // Enregistrez le BroadcastReceiver pour les actions appropriées
@@ -76,7 +76,7 @@ class GestionnaireApplication(
     private fun checkVersion(app : MyApplication) : Boolean {
         //Vérifie la version de l'application installée (dans la BDD) comparée aux infos recues
 
-        val actualApp = this.appDAO.getApp(app.name)[0]
+        val actualApp = this.appDAO.getApp(app.packageName)[0]
         return (actualApp.version == app.version) //(true)
     }
 
@@ -94,6 +94,8 @@ class GestionnaireApplication(
             return listOf()
         }
 
+        Log.d("getAppList",this.appURLS.toString())
+
         for (item in this.appURLS){
 
             val info = getAppInfos(item) //On récupère les information
@@ -109,16 +111,18 @@ class GestionnaireApplication(
                 infoLink = parsedInfos[6]
             ) //On crée une application à partir de ces informations
 
-
             val existence = this.appDAO.exists(app.packageName) //1
 
             //On vérifie si l'application est installée
             val isInstalled = app.isInstalled(ctx)
 
+            Log.d("checkApp",isInstalled.toString() + " ${app.packageName }")
+            Log.d("checkApp","$existence")
+
             //On mets à jour l'état de l'application ainsi que la Base de donnée
             if (existence == 1) {
                 if (!isInstalled){ //Si l'application est desinstallée
-                    this.appDAO.removeApp(app) //On retire l'application de la base de donnée
+                    this.appDAO.removeAppByPackageName(app.packageName) //On retire l'application de la base de donnée
                     app.state = ApplicationState.UNINSTALLED
 
                 } else { //L'application est installée
@@ -154,7 +158,7 @@ class GestionnaireApplication(
         return this.nbApp
     }
 
-    fun refresh(ctx : Context){
+    fun refresh(ctx : Context, affCallback : Boolean = true){
         //Rafraichis la liste d'application sur la page centrale
         val net = isNetworkAvailable(ctx)
 
@@ -164,8 +168,10 @@ class GestionnaireApplication(
             Log.d("OnRefresh", this.appList.toString())
             Log.d("OnRefresh", this.appURLS.toString())
 
-            scope.launch {
-                snackbarHostState.showSnackbar("Refreshed")
+            if (affCallback) {
+                scope.launch {
+                    snackbarHostState.showSnackbar("Refreshed")
+                }
             }
         } else {
             scope.launch {

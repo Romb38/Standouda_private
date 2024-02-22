@@ -62,6 +62,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation(platform("androidx.compose:compose-bom:2023.08.00"))
+    implementation("androidx.appcompat:appcompat:1.6.1")
 
 
     val room_version = "2.6.1"

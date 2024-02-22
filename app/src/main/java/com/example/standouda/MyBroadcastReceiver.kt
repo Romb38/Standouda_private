@@ -20,7 +20,7 @@ class MyBroadcastReceiver(
 
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.d("intent",intent.toString())
+        Log.d("testIntent",intent.toString())
         if (intent?.action == DownloadManager.ACTION_DOWNLOAD_COMPLETE) {
             val errorCode = isCorrectlyDownload(context, intent)
             val path = getFilePath(context, intent).toString()
@@ -39,7 +39,7 @@ class MyBroadcastReceiver(
             CoroutineScope(Dispatchers.Main).launch {
                 snackbarHostState.showSnackbar("Download successful")
             }
-            //[TODO] Installer l'application et mettre à jour la BDD
+
             Log.d("Download", "Téléchargement fini")
             installApkFromFolder(this.context, path)
 

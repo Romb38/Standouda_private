@@ -15,4 +15,6 @@ object Constants {
     //Prendre le github de Standouda public et rajouter le fichier
     val GITHUB_APP_LINK = "https://raw.githubusercontent.com/Romb38/StandoudApp/main/"
 
+    var IS_INSTALLING = MyApplication(packageName = "")
+    var APP_INSTALLED = MyApplication(packageName = "")
 }

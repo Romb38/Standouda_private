@@ -67,7 +67,6 @@ fun getAppURLList():List<String>{
     return result.split("\n")
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun downloadFile(context: Context, url: String, fileName: String) {
     // Télécharge un fichier en ligne et le stocke dans le dossier de stockage interne de l'application
 

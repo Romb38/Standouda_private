@@ -86,6 +86,18 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
+    override fun onResume() {
+        super.onResume()
+        if (!Constants.IS_INSTALLING.isEmpty()){
+            setContent {
+                StandoudaTheme {
+                    Navigation()
+                }
+            }
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     private fun requestUnknownSourcesPermission() {
         val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
@@ -102,10 +114,22 @@ fun Standoudapp(navController: NavController){
     val snackbarHostState = remember { SnackbarHostState() }
 
     val ctx = LocalContext.current
+    if(!Constants.IS_INSTALLING.isEmpty()) {
+        AppDataBase.getDatabase(ctx).AppDAO().addApp(Constants.IS_INSTALLING)
+    }
+
     val gestionApp by remember { mutableStateOf(GestionnaireApplication(ctx = ctx, snackbarHostState = snackbarHostState, scope = scope))}
     var appList by remember {
         mutableStateOf(gestionApp.getAppList())
     }
+
+    if(!Constants.IS_INSTALLING.isEmpty()){
+        Log.d("testIntent","Fin de l'installation")
+        gestionApp.refresh(ctx,false)
+        appList = gestionApp.getAppList()
+        Constants.IS_INSTALLING = MyApplication(packageName = "")
+    }
+
 
     Column(
         modifier = Modifier.fillMaxSize()
