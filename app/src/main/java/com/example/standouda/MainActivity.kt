@@ -30,6 +30,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,15 +56,16 @@ import com.example.standouda.ui.theme.StandoudaTheme
 
 class MainActivity : ComponentActivity() {
 
+
     private val unknownSourcesPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (packageManager.canRequestPackageInstalls()) {
-                    Log.d("AppManager","Autorisation d'installer des application inconnues")
+                    Log.d("AppManager", "Autorisation d'installer des application inconnues")
                 } else {
                     // L'utilisateur n'a pas accordé la permission pour installer des applications de sources inconnues.
                     // Vous pouvez gérer cela en conséquence.
-                    Log.e("AppManager","Interdiction d'installer des application inconnues")
+                    Log.e("AppManager", "Interdiction d'installer des application inconnues")
                 }
             }
         }
@@ -75,7 +77,7 @@ class MainActivity : ComponentActivity() {
             if (!packageManager.canRequestPackageInstalls()) {
                 requestUnknownSourcesPermission()
             } else {
-                Log.d("AppManager","Autorisation d'installer des application inconnues")
+                Log.d("AppManager", "Autorisation d'installer des application inconnues")
             }
         }
 
@@ -89,12 +91,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (!Constants.IS_INSTALLING.isEmpty()){
-            setContent {
-                StandoudaTheme {
-                    Navigation()
-                }
-            }
+        Log.d("DEBUG_UPDATE", Constants.IS_INSTALLING.packageName)
+        if (!Constants.IS_INSTALLING.isEmpty()) {
+            Log.d("DEBUG_UPDATE", "Je passe ici")
+            AppDataBase.getDatabase(this).AppDAO().addApp(Constants.IS_INSTALLING)
+            //TODO Gerer le loading icon
+            gestionApp.refresh(this, false)
+            appList = gestionApp.getAppList()
         }
     }
 
@@ -104,32 +107,33 @@ class MainActivity : ComponentActivity() {
             .setData(Uri.parse("package:$packageName"))
         unknownSourcesPermissionLauncher.launch(intent)
     }
-
 }
 
+lateinit var gestionApp: GestionnaireApplication
+var appList: List<MyApplication> by mutableStateOf(emptyList())
+
 @Composable
-fun Standoudapp(navController: NavController){
+fun Standoudapp(navController: NavController) {
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
     val ctx = LocalContext.current
-    if(!Constants.IS_INSTALLING.isEmpty()) {
-        AppDataBase.getDatabase(ctx).AppDAO().addApp(Constants.IS_INSTALLING)
+
+    gestionApp = remember {
+        GestionnaireApplication(
+            ctx = ctx,
+            snackbarHostState = snackbarHostState,
+            scope = scope
+        )
     }
 
-    val gestionApp by remember { mutableStateOf(GestionnaireApplication(ctx = ctx, snackbarHostState = snackbarHostState, scope = scope))}
-    var appList by remember {
-        mutableStateOf(gestionApp.getAppList())
-    }
+    appList = remember { gestionApp.getAppList() }
 
-    if(!Constants.IS_INSTALLING.isEmpty()){
-        Log.d("testIntent","Fin de l'installation")
-        gestionApp.refresh(ctx,false)
-        appList = gestionApp.getAppList()
-        Constants.IS_INSTALLING = MyApplication(packageName = "")
-    }
+    Log.d("DEBUG_UPDATE", "Fin de l'installation")
 
+    Constants.IS_INSTALLING = remember { MyApplication(packageName = "") }
+    Constants.APP_INSTALLED = remember { MyApplication(packageName = "") }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -148,7 +152,7 @@ fun Standoudapp(navController: NavController){
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(appList.size) { index ->
-                        ListItem(app = appList[index],snackbarHostState)
+                        ListItem(app = appList[index], snackbarHostState)
                     }
                 }
             } else {
@@ -188,11 +192,11 @@ fun Standoudapp(navController: NavController){
 
 
 @Composable
-fun NotAvailable(){
-    Row (
+fun NotAvailable() {
+    Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
-    ){
+    ) {
         Text(
             modifier = Modifier.padding(top = 16.dp),
             text = "No apps availables",
@@ -202,7 +206,7 @@ fun NotAvailable(){
 }
 
 @Composable
-fun TopBar(navController: NavController){
+fun TopBar(navController: NavController) {
 // Afficher le rectangle violet en haut de l'écran avec du texte à l'intérieur
     Box(
         modifier = Modifier
@@ -227,13 +231,11 @@ fun TopBar(navController: NavController){
 }
 
 
-
-
 @Composable
-fun MoreOptionButton(navController: NavController){
+fun MoreOptionButton(navController: NavController) {
     IconButton(
         modifier = Modifier.padding(16.dp),
-        onClick = {navController.navigate("settings")}
+        onClick = { navController.navigate("settings") }
     )
     {
         Icon(
@@ -247,15 +249,15 @@ fun MoreOptionButton(navController: NavController){
 
 
 @Composable
-fun ListItem(app: MyApplication,snackbarHostState : SnackbarHostState) {
+fun ListItem(app: MyApplication, snackbarHostState: SnackbarHostState) {
     Box(
         modifier = Modifier
             .background(Color.Black)
-    ){
-        Row (
+    ) {
+        Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
-        ){
+        ) {
             app.AfficheAppIcon()
 
             Column {
@@ -265,19 +267,19 @@ fun ListItem(app: MyApplication,snackbarHostState : SnackbarHostState) {
                     style = TextStyle(fontSize = 24.sp, color = Color.White)
                 )
                 Text(
-                    text = "by "+app.author,
+                    text = "by " + app.author,
                     style = TextStyle(fontSize = 16.sp, color = Color.Gray)
                 )
             }
 
             Spacer(modifier = Modifier.weight(1f))
 
-            app.AffAppInteractButton(snackbarHostState)
+            app.AffAppInteractButton(snackbarHostState, false)
 
             val handler = LocalUriHandler.current
 
             IconButton(
-                onClick = { openURL(app.infoLink,handler) },
+                onClick = { openURL(app.infoLink, handler) },
                 modifier = Modifier.padding(end = 10.dp)
             ) {
                 Icon(
@@ -294,11 +296,11 @@ fun ListItem(app: MyApplication,snackbarHostState : SnackbarHostState) {
 }
 
 
-
 @Preview
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
+
 
     // Utilisez NavHost pour gérer la navigation
     NavHost(navController = navController, startDestination = "main") {
@@ -308,11 +310,11 @@ fun Navigation() {
         }
         // Écran des paramètres
         composable("settings") {
-            SettingsScreen(navController=navController)
+            SettingsScreen(navController = navController)
         }
         //About section
-        composable("about"){
-            AboutView(navController = navController,name="About")
+        composable("about") {
+            AboutView(navController = navController, name = "About")
         }
     }
 }

@@ -14,7 +14,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -74,9 +78,9 @@ class MyApplication(
     }
 
     @Composable
-    fun AffAppInteractButton(snackbarHostState : SnackbarHostState) {
+    fun AffAppInteractButton(snackbarHostState : SnackbarHostState, state : Boolean) {
         if (this.state == ApplicationState.UPDATABLE){
-            UpdateInteraction(snackbarHostState)
+            UpdateInteraction(snackbarHostState,state)
             return
         }
 
@@ -85,14 +89,16 @@ class MyApplication(
             return
         }
 
-        DownloadInteraction(snackbarHostState)
+        DownloadInteraction(snackbarHostState,state)
     }
     @Composable
-    fun DownloadInteraction(snackbarHostState : SnackbarHostState){
+    fun DownloadInteraction(snackbarHostState : SnackbarHostState, state : Boolean){
         val ctx = LocalContext.current
         val scope = rememberCoroutineScope()
+        var isLoading by remember { mutableStateOf(state) }
         IconButton(
             onClick = {
+                isLoading = true
                 Log.d("appCheck",this.version)
                 if (!isNetworkAvailable(ctx)){
                     scope.launch {
@@ -102,28 +108,30 @@ class MyApplication(
                     scope.launch {
                         snackbarHostState.showSnackbar("Downloading...")
                     }
-                    //[TODO] Changer l'icone pour un chargement
                     downloadFile(ctx,"https://github.com/Romb38/StandoudApp/raw/main/test_apk.apk","test_apk.apk")
 
-                    //[TODO] Mettre à jour la BDD correctement
-                    //[TODO] Une fois que l'application est installé, mettre la bonne version dans la base de donnée
                     Constants.APP_INSTALLED = this
                 }
                       },
         ) {
-            Icon(
-                modifier = Modifier.size(40.dp),
-                painter = painterResource(id = R.drawable.download_24px),
-                contentDescription = "Information",
-                tint = Color.White
-            )
+            if (isLoading){
+                CircularProgressIndicator()
+            } else {
+                Icon(
+                    modifier = Modifier.size(40.dp),
+                    painter = painterResource(id = R.drawable.download_24px),
+                    contentDescription = "Information",
+                    tint = Color.White
+                )
+            }
         }
     }
 
     @Composable
-    fun UpdateInteraction(snackbarHostState : SnackbarHostState){
+    fun UpdateInteraction(snackbarHostState : SnackbarHostState, state : Boolean){
         val ctx = LocalContext.current
         val scope = rememberCoroutineScope()
+        var isLoading by remember { mutableStateOf(state) }
         IconButton(
             onClick = {
                 Log.d("appCheck",this.version)
@@ -132,27 +140,32 @@ class MyApplication(
                         snackbarHostState.showSnackbar("Check internet connexion")
                     }
                 } else {
+                    isLoading = true
                     scope.launch {
                         snackbarHostState.showSnackbar("Downloading...")
                     }
-                    //[TODO] Changer l'icone pour un chargement
                     downloadFile(ctx,"https://github.com/Romb38/StandoudApp/raw/main/test_apk.apk","test_apk.apk")
 
-                    //[TODO] Vérifier que la mise a jour s'est déroulée correctement
+                    //[TODO] Bug de rechargement de la page lors de la mise à jour
                     Constants.APP_INSTALLED = this
                     AppDataBase.getDatabase(ctx).AppDAO().removeAppByPackageName(this.packageName)
-
                 }
 
 
                       },
         ) {
-            Icon(
-                modifier = Modifier.size(40.dp),
-                painter = painterResource(id = R.drawable.outline_update),
-                contentDescription = "Information",
-                tint = Color.White
-            )
+
+            if (isLoading){
+                CircularProgressIndicator()
+            } else {
+                Icon(
+                    modifier = Modifier.size(40.dp),
+                    painter = painterResource(id = R.drawable.outline_update),
+                    contentDescription = "Information",
+                    tint = Color.White
+                )
+            }
+
         }
     }
 
