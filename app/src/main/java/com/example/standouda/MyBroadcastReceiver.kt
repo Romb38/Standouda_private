@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
-import android.net.Uri
 import android.util.Log
 import androidx.compose.material3.SnackbarHostState
 import kotlinx.coroutines.CoroutineScope
@@ -14,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MyBroadcastReceiver(
-    val snackbarHostState: SnackbarHostState,
+    private val snackbarHostState: SnackbarHostState,
     val context: Context
 ) : BroadcastReceiver() {
 
@@ -52,22 +51,22 @@ class MyBroadcastReceiver(
         }
     }
 
-    fun isCorrectlyDownload(context: Context?, intent: Intent): Int{
+    private fun isCorrectlyDownload(context: Context?, intent: Intent): Int{
         // Vérifie si le téléchargement s'est bien passé
-        var output : Int = 0
+        var output = 0
         val downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
         val downloadManager = context?.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val query = DownloadManager.Query().setFilterById(downloadId)
         val cursor = downloadManager.query(query)
         if (cursor.moveToFirst()) {
-            val pre_status = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
-            if (pre_status != -1){
-                val status = cursor.getInt(pre_status)
+            val preStatus = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
+            if (preStatus != -1){
+                val status = cursor.getInt(preStatus)
                 if (status == DownloadManager.STATUS_FAILED) {
                     // Téléchargement échoué, gérer l'erreur ici
-                    val pre_reason = cursor.getColumnIndex(DownloadManager.COLUMN_REASON)
-                    if (pre_reason != -1){
-                        val reason = cursor.getInt(pre_reason)
+                    val preReason = cursor.getColumnIndex(DownloadManager.COLUMN_REASON)
+                    if (preReason != -1){
+                        val reason = cursor.getInt(preReason)
                         output = reason
                     }
                 }
@@ -88,7 +87,6 @@ class MyBroadcastReceiver(
         val cursor: Cursor = downloadManager.query(query)
 
         return if (cursor.moveToFirst()) {
-            val status: Int = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS))
             val localUri: String? = cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI))
 
             localUri?.substring(7) // Removing "file://
