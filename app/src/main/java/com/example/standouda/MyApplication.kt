@@ -2,10 +2,7 @@ package com.example.standouda
 
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Build
-import android.os.Environment
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -28,13 +25,10 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import coil.compose.SubcomposeAsyncImage
-import com.google.android.gms.common.api.Scope
 import kotlinx.coroutines.launch
-import java.io.File
 
 enum class ApplicationState {
     UNINSTALLED,
-    IS_INSTALLING,
     UPDATABLE,
     INSTALLED
 }
