@@ -54,6 +54,8 @@ fun getAppURLList():List<String>{
 }
 
 fun downloadFile(context: Context, url: String, fileName: String) {
+    //[TODO] Assurer que l'URL est correcte
+
     // Télécharge un fichier en ligne et le stocke dans le dossier de stockage interne de l'application
 
     val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager

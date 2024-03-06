@@ -102,7 +102,7 @@ class MyApplication(
                     scope.launch {
                         snackbarHostState.showSnackbar("Downloading...")
                     }
-                    downloadFile(ctx,"https://github.com/Romb38/StandoudApp/raw/main/test_apk.apk","test_apk.apk")
+                    downloadFile(ctx,this.dlLink,this.dlLink.substringAfterLast("/"))
 
                     Constants.APP_INSTALLED = this
                 }
@@ -138,7 +138,7 @@ class MyApplication(
                     scope.launch {
                         snackbarHostState.showSnackbar("Downloading...")
                     }
-                    downloadFile(ctx,"https://github.com/Romb38/StandoudApp/raw/main/test_apk.apk","test_apk.apk")
+                    downloadFile(ctx,this.dlLink,this.dlLink.substringAfterLast("/"))
 
                     //[TODO] Bug de rechargement de la page lors de la mise à jour
                     Constants.APP_INSTALLED = this
