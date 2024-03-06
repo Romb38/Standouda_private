@@ -36,7 +36,7 @@ enum class ApplicationState {
 @Entity(tableName = "AppList")
 class MyApplication(
     var name: String = "Untitled",
-    var packageName : String = "com.example."+name,
+    var packageName : String = "com.example.$name",
     var author: String = "Unknown",
     var version: String = "",
     var icon: String = "", // Valeur par défaut pour l'icône

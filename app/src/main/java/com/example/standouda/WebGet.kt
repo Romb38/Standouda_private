@@ -8,7 +8,7 @@ class WebGet(
 
 ) {
 
-    val retrofit = Retrofit.Builder()
+    private val retrofit = Retrofit.Builder()
         .addConverterFactory(ScalarsConverterFactory.create())
         .baseUrl(url)
         .build()

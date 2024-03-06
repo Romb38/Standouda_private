@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 
 class MyBroadcastReceiver(
     private val snackbarHostState: SnackbarHostState,
-    val context: Context
+    private val context: Context
 ) : BroadcastReceiver() {
 
 

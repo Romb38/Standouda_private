@@ -1,23 +1,14 @@
 package com.example.standouda
 
 import android.app.DownloadManager
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import android.media.MediaCodec.MetricsConstants.MIME_TYPE
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
-import android.os.Build
 import android.os.Environment
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.compose.ui.platform.UriHandler
-import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.runBlocking
-import java.io.File
-import java.io.FileOutputStream
-import java.net.URL
 
 
 fun isNetworkAvailable(ctx : Context) : Boolean{
@@ -44,14 +35,9 @@ fun openURL(url : String, handler : UriHandler){
 fun getTxtFromURL(url: String) : String = runBlocking{
     try {
         val wG = WebGet(url)
-        var result = ""
-
-        result = wG.retrofitService.getInfos()
-
-
-        return@runBlocking result
-    } catch (e : Exception){
-        Log.d("webError",e.toString())
+        return@runBlocking wG.retrofitService.getInfos()
+    } catch (e: Exception) {
+        Log.d("webError", e.toString())
         return@runBlocking ""
     }
 }
@@ -80,5 +66,5 @@ fun downloadFile(context: Context, url: String, fileName: String) {
         .setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, fileName)
         .setMimeType("application/vnd.android.package-archive")
 
-    val id = downloadManager.enqueue(request)
+    downloadManager.enqueue(request)
 }
