@@ -5,6 +5,8 @@ object Constants {
         "About",
     )
 
+    val PACKAGE_NAME = "com.example.standouda"
+
     val SETTINGS_MENU_ICON = mapOf(
         "About" to R.drawable.info_24px,
         "default" to R.drawable.icon_default

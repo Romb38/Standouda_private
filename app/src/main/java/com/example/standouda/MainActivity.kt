@@ -23,7 +23,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.SnackbarHost
@@ -249,6 +251,7 @@ fun MoreOptionButton(navController: NavController) {
 
 @Composable
 fun ListItem(app: MyApplication, snackbarHostState: SnackbarHostState) {
+    val ctx = LocalContext.current
     Box(
         modifier = Modifier
             .background(Color.Black)
@@ -258,21 +261,24 @@ fun ListItem(app: MyApplication, snackbarHostState: SnackbarHostState) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             app.AfficheAppIcon()
-
-            Column {
-                Text(
-                    modifier = Modifier,
-                    text = app.name,
-                    style = TextStyle(fontSize = 24.sp, color = Color.White)
-                )
-                Text(
-                    text = "by " + app.author,
-                    style = TextStyle(fontSize = 16.sp, color = Color.Gray)
-                )
+            Button(
+                onClick = { ouvrirApplicationParPackage(ctx,app.packageName) },
+                shape = RoundedCornerShape(0), // Pour rendre les coins carrés
+                colors = ButtonDefaults.buttonColors(Color.Black)
+            ) {
+                Column {
+                    Text(
+                        modifier = Modifier,
+                        text = app.name,
+                        style = TextStyle(fontSize = 24.sp, color = Color.White)
+                    )
+                    Text(
+                        text = "by " + app.author,
+                        style = TextStyle(fontSize = 16.sp, color = Color.Gray)
+                    )
+                }
             }
-
             Spacer(modifier = Modifier.weight(1f))
-
             app.AffAppInteractButton(snackbarHostState, false)
 
             val handler = LocalUriHandler.current

@@ -2,7 +2,9 @@ package com.example.standouda
 
 import android.app.DownloadManager
 import android.content.Context
+import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.util.Log
 import androidx.compose.material3.SnackbarHostState
 import androidx.core.content.ContextCompat.RECEIVER_EXPORTED
@@ -181,4 +183,14 @@ class GestionnaireApplication(
     }
 
 
+}
+
+fun ouvrirApplicationParPackage(context: Context, packageName: String) {
+    val packageManager: PackageManager = context.packageManager
+    val intent = packageManager.getLaunchIntentForPackage(packageName)
+    intent?.let {
+        it.addCategory(Intent.CATEGORY_LAUNCHER)
+        it.action = Intent.ACTION_MAIN
+        context.startActivity(it)
+    }
 }

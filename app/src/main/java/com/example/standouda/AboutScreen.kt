@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -98,8 +99,7 @@ fun AboutView(navController: NavController,name : String) {
 fun AppInformation() {
     val appName = stringResource(id = R.string.app_name)
     val pseudo = stringResource(id = R.string.pseudo)
-    val version = stringResource(id = R.string.version)
-
+    val version = AppDataBase.getDatabase(LocalContext.current).AppDAO().getApp(Constants.PACKAGE_NAME)[0].version
     // Style de texte pour les contenus
     val contentTextStyle = TextStyle(color = Color.White, fontWeight = FontWeight.Normal)
     Box(
