@@ -139,8 +139,6 @@ class MyApplication(
                         snackbarHostState.showSnackbar("Downloading...")
                     }
                     downloadFile(ctx,this.dlLink,this.dlLink.substringAfterLast("/"))
-
-                    //[TODO] Bug de rechargement de la page lors de la mise à jour
                     Constants.APP_INSTALLED = this
                     AppDataBase.getDatabase(ctx).AppDAO().removeAppByPackageName(this.packageName)
                 }

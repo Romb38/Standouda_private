@@ -25,7 +25,6 @@ class MyBroadcastReceiver(
             val path = getFilePath(context, intent).toString()
             Log.d("Download", path)
             if (errorCode == -1) {
-                //[TODO] Tester
                 Log.e("Download", "Échec du téléchargement, raison: $errorCode")
                 Log.e("Download", path)
                 CoroutineScope(Dispatchers.Main).launch {

@@ -96,7 +96,6 @@ class MainActivity : ComponentActivity() {
         if (!Constants.IS_INSTALLING.isEmpty()) {
             Log.d("DEBUG_UPDATE", "Je passe ici")
             AppDataBase.getDatabase(this).AppDAO().addApp(Constants.IS_INSTALLING)
-            //TODO Gerer le loading icon
             gestionApp.refresh(this, false)
             appList = gestionApp.getAppList()
         }
@@ -115,7 +114,7 @@ var appList: List<MyApplication> by mutableStateOf(emptyList())
 
 @Composable
 fun Standoudapp(navController: NavController) {
-
+    //[TODO] Ajouter le rafraichissement lorsqu'on glisse vers le bas
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -260,6 +259,7 @@ fun ListItem(app: MyApplication, snackbarHostState: SnackbarHostState) {
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            //[TODO] Afficher l'icone en grand quand on clique dessus
             app.AfficheAppIcon()
             Button(
                 onClick = { ouvrirApplicationParPackage(ctx,app.packageName) },
