@@ -54,6 +54,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.standouda.ui.theme.StandoudaTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -251,6 +252,7 @@ fun MoreOptionButton(navController: NavController) {
 @Composable
 fun ListItem(app: MyApplication, snackbarHostState: SnackbarHostState) {
     val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
     Box(
         modifier = Modifier
             .background(Color.Black)
@@ -262,7 +264,16 @@ fun ListItem(app: MyApplication, snackbarHostState: SnackbarHostState) {
             //[TODO] Afficher l'icone en grand quand on clique dessus
             app.AfficheAppIcon()
             Button(
-                onClick = { ouvrirApplicationParPackage(ctx,app.packageName) },
+                onClick = {
+                    if (app.state != ApplicationState.UNINSTALLED){
+                        //L'application est installée, on l'ouvre
+                        ouvrirApplicationParPackage(ctx,app.packageName)
+                    } else {
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Install app before opening it")
+                        }
+                    }
+                          },
                 shape = RoundedCornerShape(0), // Pour rendre les coins carrés
                 colors = ButtonDefaults.buttonColors(Color.Black)
             ) {
@@ -285,11 +296,14 @@ fun ListItem(app: MyApplication, snackbarHostState: SnackbarHostState) {
 
             IconButton(
                 onClick = { openURL(app.infoLink, handler) },
-                modifier = Modifier.padding(end = 10.dp)
+                modifier = Modifier
+                    .size(100.dp)
+                    .fillMaxWidth()
             ) {
                 Icon(
                     modifier = Modifier
-                        .size(40.dp),
+                        .size(40.dp)
+                        .fillMaxSize(),
                     painter = painterResource(id = R.drawable.info_24px),
                     contentDescription = "Information",
                     tint = Color.White

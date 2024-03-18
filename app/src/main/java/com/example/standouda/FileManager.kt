@@ -2,6 +2,7 @@ package com.example.standouda
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider
 import java.io.File
@@ -36,5 +37,14 @@ fun installApkFromFolder(context: Context, path: String) {
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
     }
     Constants.IS_INSTALLING = Constants.APP_INSTALLED
+    //[TODO] Résoudre le bug lorsqu'on n'arrive pas à installer une application
     context.startActivity(installIntent)
+}
+
+fun uninstallPackage(context: Context, packageName: String) {
+    Log.d("Uninstall",packageName)
+    val uninstallIntent = Intent(Intent.ACTION_DELETE)
+    uninstallIntent.data = Uri.parse("package:$packageName")
+    uninstallIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+    context.startActivity(uninstallIntent)
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
@@ -126,6 +127,8 @@ class MyApplication(
         val ctx = LocalContext.current
         val scope = rememberCoroutineScope()
         var isLoading by remember { mutableStateOf(state) }
+
+
         IconButton(
             onClick = {
                 Log.d("appCheck",this.version)
@@ -159,11 +162,22 @@ class MyApplication(
             }
 
         }
+
+        IconButton(onClick = { uninstallPackage(ctx,this.packageName) }) {
+            Icon(
+                modifier = Modifier
+                    .size(40.dp)
+                    .fillMaxWidth(),
+                painter = painterResource(id = R.drawable.delete_24px),
+                contentDescription = "delete",
+                tint = Color.White,
+            )
+        }
     }
 
     @Composable
     fun IsInstalledInteraction(snackbarHostState : SnackbarHostState){
-
+        val ctx = LocalContext.current
         val scope = rememberCoroutineScope()
         val message = this.name + " is up to date"
 
@@ -179,6 +193,17 @@ class MyApplication(
                 painter = painterResource(id = R.drawable.done_24px),
                 contentDescription = "Information",
                 tint = Color.White
+            )
+        }
+
+        IconButton(onClick = {uninstallPackage(ctx,this.packageName)}) {
+            Icon(
+                modifier = Modifier
+                    .size(40.dp)
+                    .fillMaxWidth(),
+                painter = painterResource(id = R.drawable.delete_24px),
+                contentDescription = "delete",
+                tint = Color.White,
             )
         }
     }
